@@ -21,6 +21,7 @@ type GalleryScreenNavigationProp = NativeStackNavigationProp<
 
 interface Image {
   id: number;
+  albumId: number;
   url: string;
   title: string;
   thumbnailUrl: string;
@@ -29,7 +30,6 @@ interface Image {
 const GalleryScreen: React.FC = () => {
   const navigation = useNavigation<GalleryScreenNavigationProp>();
   const {data, status, error} = useFetchImages();
-  console.log('🚀 ~ data:', data);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -44,8 +44,9 @@ const GalleryScreen: React.FC = () => {
   const renderImage = ({item}: {item: Image}) => (
     <TouchableOpacity
       onPress={() => navigation.navigate('ImageDetail', {image: item})}>
-      <Animated.View style={{opacity: fadeAnim}}>
-        <Card>
+      <Animated.View
+        style={{opacity: fadeAnim, marginRight: 10, marginBottom: 10}}>
+        <Card mode="contained">
           <FastImage
             style={styles.image}
             source={{
@@ -62,9 +63,8 @@ const GalleryScreen: React.FC = () => {
 
   const filteredData = data.filter(
     (item: Image) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()),
-    // ||
-    //   item.albumId.toString().includes(searchQuery),
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.albumId.toString().includes(searchQuery),
   );
 
   return (
@@ -77,6 +77,7 @@ const GalleryScreen: React.FC = () => {
         style={styles.searchBar}
       />
       <FlatList
+        style={styles.imgContainer}
         data={filteredData}
         renderItem={renderImage}
         keyExtractor={item => item.id.toString()}
@@ -89,17 +90,20 @@ const GalleryScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    margin: 10,
   },
   searchBar: {
-    margin: 10,
+    marginBottom: 10,
     padding: 10,
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 5,
   },
+  imgContainer: {},
   image: {
-    width: 100,
+    width: 120,
     height: 100,
+    borderRadius: 8,
   },
 });
 
