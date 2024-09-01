@@ -1,20 +1,15 @@
 import React, {useState, useRef} from 'react';
-import {
-  FlatList,
-  TouchableOpacity,
-  Animated,
-  View,
-  StyleSheet,
-} from 'react-native';
+import {FlatList, TouchableOpacity, Animated} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {Card, useTheme} from 'react-native-paper';
+import {Card, Snackbar} from 'react-native-paper';
 import FastImage from 'react-native-fast-image';
 import {RootStackParamList} from '../../navigation/types/navigation.types';
 import useFetchImages from '../../hooks/useFetchImages';
 import OnSearchBar from '../../components/OnSearchBar/OnSearchBar';
 import useDeviceType from '../../hooks/useDeviceType';
 import Container from '../../components/Container/Container';
+import {globalStyles} from '../../styles/global.styles';
 
 type GalleryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -30,11 +25,11 @@ interface Image {
 }
 
 const GalleryScreen: React.FC = () => {
-  const theme = useTheme();
   const {deviceType, screenWidth} = useDeviceType();
   const navigation = useNavigation<GalleryScreenNavigationProp>();
   const {data} = useFetchImages();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const numColumns = deviceType === 'tablet' ? 3 : 2;
@@ -49,9 +44,17 @@ const GalleryScreen: React.FC = () => {
     }).start();
   };
 
+  const showSnackbar = () => setSnackbarVisible(true);
+  const onDismissSnackbar = () => setSnackbarVisible(false);
+
   const renderImage = ({item}: {item: Image}) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('ImageDetail', {image: item})}>
+      onPress={() =>
+        navigation.navigate('ImageDetail', {
+          image: item,
+          showSnackbar,
+        })
+      }>
       <Animated.View
         style={{opacity: fadeAnim, marginRight: 10, marginBottom: 10}}>
         <Card mode="contained">
@@ -89,6 +92,14 @@ const GalleryScreen: React.FC = () => {
         keyExtractor={item => item.id.toString()}
         numColumns={numColumns}
       />
+
+      <Snackbar
+        style={globalStyles.snackbar}
+        visible={snackbarVisible}
+        onDismiss={onDismissSnackbar}
+        duration={3000}>
+        Image deleted successfully!
+      </Snackbar>
     </Container>
   );
 };
