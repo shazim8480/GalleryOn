@@ -1,10 +1,11 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
-import {Text, Button, Card} from 'react-native-paper';
+import {StyleSheet} from 'react-native';
+import {Button, Card} from 'react-native-paper';
 import {useDispatch} from 'react-redux';
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../navigation/types/navigation.types';
-// import {deleteImage} from '../../redux/imageSlice';
+import {deleteImage} from '../../redux/imageSlice';
+import Container from '../../components/Container/Container';
 
 type ImageDetailScreenRouteProp = RouteProp<RootStackParamList, 'ImageDetail'>;
 
@@ -18,28 +19,29 @@ const ImageDetailScreen: React.FC<Props> = ({route}) => {
   const navigation = useNavigation();
 
   const handleDelete = () => {
-    // dispatch(deleteImage(image.id));
+    dispatch(deleteImage(image.id));
     navigation.goBack();
   };
 
   return (
-    <View style={styles.container}>
+    <Container>
       <Card>
-        <Card.Cover source={{uri: image.url}} />
+        <Card.Cover style={styles.imgCover} source={{uri: image.url}} />
       </Card>
-      <Text>{image.title}</Text>
-      <Button onPress={() => navigation.goBack()}>Back</Button>
-      <Button mode="contained" onPress={handleDelete} color="red">
-        Delete
-      </Button>
-    </View>
+      <Card.Title title={image.title} />
+      <Card.Actions>
+        <Button onPress={() => navigation.goBack()}>Back</Button>
+        <Button mode="contained" onPress={handleDelete} buttonColor="red">
+          Delete
+        </Button>
+      </Card.Actions>
+    </Container>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
+  imgCover: {
+    borderRadius: 4,
   },
 });
 

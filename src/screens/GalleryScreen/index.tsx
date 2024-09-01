@@ -4,15 +4,17 @@ import {
   TouchableOpacity,
   Animated,
   View,
-  TextInput,
   StyleSheet,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {Card} from 'react-native-paper';
+import {Card, useTheme} from 'react-native-paper';
 import FastImage from 'react-native-fast-image';
 import {RootStackParamList} from '../../navigation/types/navigation.types';
 import useFetchImages from '../../hooks/useFetchImages';
+import OnSearchBar from '../../components/OnSearchBar/OnSearchBar';
+import useDeviceType from '../../hooks/useDeviceType';
+import Container from '../../components/Container/Container';
 
 type GalleryScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -28,10 +30,16 @@ interface Image {
 }
 
 const GalleryScreen: React.FC = () => {
+  const theme = useTheme();
+  const {deviceType, screenWidth} = useDeviceType();
   const navigation = useNavigation<GalleryScreenNavigationProp>();
-  const {data, status, error} = useFetchImages();
+  const {data} = useFetchImages();
   const [searchQuery, setSearchQuery] = useState<string>('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const numColumns = deviceType === 'tablet' ? 3 : 2;
+
+  const imageWidth = screenWidth / numColumns - 22;
 
   const handleImageLoad = () => {
     Animated.timing(fadeAnim, {
@@ -48,7 +56,7 @@ const GalleryScreen: React.FC = () => {
         style={{opacity: fadeAnim, marginRight: 10, marginBottom: 10}}>
         <Card mode="contained">
           <FastImage
-            style={styles.image}
+            style={{width: imageWidth, height: 160, borderRadius: 8}}
             source={{
               uri: item.thumbnailUrl,
               priority: FastImage.priority.normal,
@@ -61,50 +69,28 @@ const GalleryScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
-  const filteredData = data.filter(
+  const filteredData = data?.filter(
     (item: Image) =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.albumId.toString().includes(searchQuery),
   );
 
   return (
-    <View style={styles.container}>
-      {/* Search Bar */}
-      <TextInput
-        placeholder="Search by title or album..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        style={styles.searchBar}
+    <Container>
+      <OnSearchBar
+        placeholder={'Search by title or album...'}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
       <FlatList
-        style={styles.imgContainer}
+        key={numColumns}
         data={filteredData}
         renderItem={renderImage}
         keyExtractor={item => item.id.toString()}
-        numColumns={3}
+        numColumns={numColumns}
       />
-    </View>
+    </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    margin: 10,
-  },
-  searchBar: {
-    marginBottom: 10,
-    padding: 10,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-  },
-  imgContainer: {},
-  image: {
-    width: 120,
-    height: 100,
-    borderRadius: 8,
-  },
-});
 
 export default GalleryScreen;
