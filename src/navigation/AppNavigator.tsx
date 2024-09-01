@@ -26,7 +26,7 @@ const AppNavigator: React.FC = () => (
         }: {
           route: {params: RootStackParamList['ImageDetail']};
         }) => ({
-          title: route.params.image.title,
+          title: 'Album Details',
         })}
       />
     </Stack.Navigator>
