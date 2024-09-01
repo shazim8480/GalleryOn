@@ -9,5 +9,6 @@ export const globalStyles = StyleSheet.create({
   },
   imgCover: {
     borderRadius: 4,
+    height: 350,
   },
 });

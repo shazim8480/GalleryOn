@@ -22,7 +22,6 @@ const ImageDetailScreen: React.FC<Props> = ({route}) => {
 
   const handleDelete = () => {
     dispatch(deleteImage(image.id));
-    console.log('snack', showSnackbar);
     if (showSnackbar) {
       showSnackbar();
     }
