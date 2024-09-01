@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Searchbar} from 'react-native-paper';
+import {Searchbar, Icon} from 'react-native-paper';
 
 interface SearchBarProps {
   placeholder?: string;
